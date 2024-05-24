@@ -1,0 +1,66 @@
+---
+title: "STAT 331/531: Final Project Analysis"
+author: "Jenna Chan, Swara Kurakula, Chirs Li, Wesley Tam"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    code-fold: true
+    toc: true
+    number-sections: true
+editor: source
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+```{r setup}
+library(tidyverse)
+expenditure <- read_csv("data/expenditure_per_student_primary_percent_of_gdp_per_person.csv")
+completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_age_group.csv")
+```
+
+## Introduction
+
+Detailed data and variable description.
+Hypothesized relationship between the variables (and any outside references).
+Discussion of data cleaning process and decisions.
+
+## Data Cleaning
+
+We decided to limit our analysis to 2006-2016 as that time range seemed to be where the majority of the data lies without too many missing values. For acceptable measurements per year, we made sure that both the expenditure and the completion rate were recorded for that year. Any years that were missing one or the other were deemed as not acceptable for this analysis. Furthermore, countries with less than 8 acceptable measurements within the given time range were excluded from the final dataset.
+
+```{r}
+# Pivot the data
+expenditure_longer <- expenditure |>
+  select(country, `2006`:`2016`) |>
+  pivot_longer(cols = `2006`:`2016`,
+               names_to = "year",
+               values_to = "expenditure")
+completion_longer <- completion |>
+  select(country, `2006`:`2016`) |>
+  pivot_longer(cols = `2006`:`2016`,
+               names_to = "year",
+               values_to = "completion_rate")
+
+# Join the datasets
+joined <- expenditure_longer |>
+  full_join(completion_longer,
+            join_by(country == country, year == year))
+
+# Remove countries with too little data
+ACCEPTABLE_THRESHOLD <- 8
+joined <- joined |>
+  mutate(is_acceptable = !is.na(completion_rate) & !is.na(expenditure)) |>
+  group_by(country) |>
+  mutate(num_acceptable = sum(is_acceptable)) |>
+  filter(num_acceptable >= ACCEPTABLE_THRESHOLD & 
+         is_acceptable == TRUE)
+
+# Summarize the Data
+joined <- joined |>
+  summarize(avg_expenditure = mean(expenditure),
+            avg_completion = mean(completion_rate))
+```
