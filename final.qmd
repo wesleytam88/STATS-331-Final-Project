@@ -24,13 +24,15 @@ completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_a
 
 ## Introduction
 
-Detailed data and variable description.
-Hypothesized relationship between the variables (and any outside references).
-Discussion of data cleaning process and decisions.
+Detailed data and variable description. Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
 ## Data Cleaning
 
-We decided to limit our analysis to 2006-2016 as that time range seemed to be where the majority of the data lies without too many missing values. For acceptable measurements per year, we made sure that both the expenditure and the completion rate were recorded for that year. Any years that were missing one or the other were deemed as not acceptable for this analysis. Furthermore, countries with less than 8 acceptable measurements within the given time range were excluded from the final dataset.
+We chose to limit our analysis to the period from 2006 to 2016, as this range contained the majority of the data with minimal missing values. For each year to be considered acceptable, both expenditure and completion rate needed to be recorded. Any year missing either of these metrics was excluded. Additionally, countries with fewer than 8 acceptable measurements within this timeframe were omitted to ensure that our analysis had a sufficient amount of data for each country.
+
+Our data cleaning process involved transforming the datasets for expenditure per person and primary school completion rates into a long format for the selected years. We then merged these datasets by country and year. And then filtered the data as mentioned earlier.
+
+We also summarized the dataset by calculating the average expenditure and completion rate for each country over the specified period.
 
 ```{r}
 # Pivot the data
