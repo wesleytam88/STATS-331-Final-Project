@@ -24,7 +24,45 @@ completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_a
 
 ## Introduction
 
-Detailed data and variable description. Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
+### Detailed data and variable description.
+
+For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education and primary school completion rates across various countries.
+
+**Dataset 1: Expenditure per Student, Primary (% of GDP per Person)**
+
+This dataset contains annual data on the percentage of GDP per capita that is spent on each primary school student.
+
+The variables included are:
+
+1.  *Country*: The name of the country.
+
+2.  *1995-2018*: 23 variables, 1995-2018, each representing the year of measured expenditure
+
+```{r include=FALSE}
+head(expenditure)
+```
+
+The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.4% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
+
+**Dataset 2: Primary Completion Rate, Total (% of Relevant Age Group)**
+
+This dataset provides annual data on the primary school completion rate, indicating the percentage of the relevant age group that successfully completes primary education. 
+
+The variables included are:
+
+1.  *Country*: The name of the country.
+
+2.  *1970-2022*: The year for which the data is recorded.
+
+```{r}
+head(completion)
+```
+
+The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 20.7%, which changed significantly over the following decades.
+
+By combining these datasets, we aim to explore the correlation between the financial investment in education and the corresponding completion rates across different countries for the time period of 2006-2016. This analysis will help us understand the impact of educational funding on student outcomes and provide useful insights on this relationship.
+ 
+Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
 ## Data Cleaning
 
