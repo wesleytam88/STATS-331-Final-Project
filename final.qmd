@@ -108,4 +108,5 @@ joined <- joined |>
 joined <- joined |>
   summarize(avg_expenditure = mean(expenditure),
             avg_completion = mean(completion_rate))
+head(joined)
 ```
