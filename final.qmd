@@ -24,17 +24,6 @@ completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_a
 
 ## Introduction
 
-<<<<<<< HEAD
-Detailed data and variable description.Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
-
-## Relationship Between Variables 
-Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. 
-This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion.
-For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (https://nces.ed.gov/fastfacts/display.asp?id=66)
-
-
-
-=======
 ### Detailed data and variable description.
 
 For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education and primary school completion rates across various countries.
@@ -53,7 +42,7 @@ The variables included are:
 head(expenditure)
 ```
 
-The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.4% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
+The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.3% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
 
 **Dataset 2: Primary Completion Rate, Total (% of Relevant Age Group)**
 
@@ -69,13 +58,16 @@ The variables included are:
 head(completion)
 ```
 
-The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 20.7%, which changed significantly over the following decades.
+The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 27.7%, which changed significantly over the following decades.
 
 By combining these datasets, we aim to explore the correlation between the financial investment in education and the corresponding completion rates across different countries for the time period of 2006-2016. This analysis will help us understand the impact of educational funding on student outcomes and provide useful insights on this relationship.
  
 Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
->>>>>>> e3c1835c599e1604f2202569b41ad040126f28b4
 
+## Relationship Between Variables 
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. 
+This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion.
+For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (https://nces.ed.gov/fastfacts/display.asp?id=66)
 ## Data Cleaning
 
 We chose to limit our analysis to the period from 2006 to 2016, as this range contained the majority of the data with minimal missing values. For each year to be considered acceptable, both expenditure and completion rate needed to be recorded. Any year missing either of these metrics was excluded. Additionally, countries with fewer than 8 acceptable measurements within this timeframe were omitted to ensure that our analysis had a sufficient amount of data for each country.
