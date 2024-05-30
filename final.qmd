@@ -26,11 +26,11 @@ completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_a
 
 ### Detailed Data and Variable Description.
 
-For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education and primary school completion rates across various countries.
+For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education (explantory variable) and primary school completion rates (response variable) across various countries. Our explanatory and response variables were both taken from [Gapminder](https://www.gapminder.org/data/), which got its data from [The World Bank](https://data.worldbank.org/), which collects its data from the statistical systems of its member countries ([https://data.worldbank.org/about](https://data.worldbank.org/about)). 
 
 **Dataset 1: Expenditure per Student, Primary (% of GDP per Person)**
 
-This dataset contains annual data on the percentage of GDP per capita that is spent on each primary school student.
+This dataset contains annual data on the percentage of GDP per capita that is spent on each primary school student. GDP per capita is the sum of all goods and services produced in a country (GDP) divided by the country's population (per capita).
 
 The variables included are:
 
@@ -38,25 +38,17 @@ The variables included are:
 
 2.  *1995-2018*: 23 variables, 1995-2018, each representing the year of measured expenditure
 
-```{r}
-head(expenditure)
-```
-
 The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.3% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
 
 **Dataset 2: Primary Completion Rate, Total (% of Relevant Age Group)**
 
-This dataset provides annual data on the primary school completion rate, indicating the percentage of the relevant age group that successfully completes primary education. 
+This dataset provides annual data on the primary school completion rate, indicating the percentage of primary schoolers that successfully complete primary education.
 
 The variables included are:
 
 1.  *Country*: The name of the country.
 
 2.  *1970-2022*: The year for which the data is recorded.
-
-```{r}
-head(completion)
-```
 
 The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 27.7%, which changed significantly over the following decades.
 
@@ -110,3 +102,8 @@ joined <- joined |>
             avg_completion = mean(completion_rate))
 head(joined)
 ```
+
+## References
+ + Explanatory & Response Variables: [https://www.gapminder.org/data/](https://www.gapminder.org/data/)
+ + Data Collection Method: [https://data.worldbank.org/about](https://data.worldbank.org/about)
+ + Pre-Analysis Research: [https://nces.ed.gov/fastfacts/display.asp?id=66](https://nces.ed.gov/fastfacts/display.asp?id=66)
