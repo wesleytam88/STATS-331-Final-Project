@@ -26,7 +26,7 @@ completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_a
 
 ### Detailed Data and Variable Description.
 
-For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education (explantory variable) and primary school completion rates (response variable) across various countries. Our explanatory and response variables were both taken from [Gapminder](https://www.gapminder.org/data/), which got its data from [The World Bank](https://data.worldbank.org/), which collects its data from the statistical systems of its member countries ([https://data.worldbank.org/about](https://data.worldbank.org/about)). 
+For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education (explantory variable) and primary school completion rates (response variable) across various countries. Our explanatory and response variables were both taken from [Gapminder](https://www.gapminder.org/data/), which got its data from [The World Bank](https://data.worldbank.org/), which collects its data from the statistical systems of its member countries (<https://data.worldbank.org/about>).
 
 **Dataset 1: Expenditure per Student, Primary (% of GDP per Person)**
 
@@ -53,13 +53,16 @@ The variables included are:
 The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 27.7%, which changed significantly over the following decades.
 
 By combining these datasets, we aim to explore the correlation between the financial investment in education and the corresponding completion rates across different countries for the time period of 2006-2016. This analysis will help us understand the impact of educational funding on student outcomes and provide useful insights on this relationship.
- 
+
 Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
-### Hypothesized Relationship Between Variables 
-Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. 
-This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion.
-For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. ([https://nces.ed.gov/fastfacts/display.asp?id=66](https://nces.ed.gov/fastfacts/display.asp?id=66))
+## Relationship Between Variables
+
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (https://nces.ed.gov/fastfacts/display.asp?id=66)
+
+### Hypothesized Relationship Between Variables
+
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
 
 ## Data Cleaning
 
@@ -97,13 +100,76 @@ joined <- joined |>
          is_acceptable == TRUE)
 
 # Summarize the Data
-joined <- joined |>
+avg_joined <- joined |>
   summarize(avg_expenditure = mean(expenditure),
             avg_completion = mean(completion_rate))
-head(joined)
+head(avg_joined)
+```
+
+## Data Visualizations
+
+### **Relationship between the variables**
+
+```{r}
+#log transforming avg_expenditure (explanatory variable)
+avg_joined <- avg_joined |>
+   mutate(log_expenditure = log(avg_expenditure))
+```
+
+```{r}
+model <- lm(avg_completion ~ log_expenditure, data=avg_joined)
+summary(model)
+```
+
+```{r}
+avg_joined |>
+  ggplot(aes(x=log_expenditure, y=avg_completion)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "hotpink", size = 1.5) +
+  labs(title = "Completion Rate vs Log of Expenditure Per Person (Primary School Level)",
+       x = "Log of Expenditure (% of GDP Per Person)",
+       y = "",
+       subtitle = "Completion Rate (% of Primary Age Group)") 
+
+```
+
+### **Relationship between the variables over time (2006 to 2016)**
+
+```{r}
+#loading necessary libraries
+library(countrycode)
+library(gganimate)
+```
+
+```{r}
+#adding continents variable
+joined_conts <- joined |>
+  mutate(continent = countrycode(sourcevar = country, origin = "country.name", destination = "continent"))
+```
+
+```{r}
+#dont run this chunk (animated graph) in rstudio - 100 graphs get downloaded
+#only run this through rendered html
+joined_conts |>
+  mutate(year = as.integer(year)) |>
+  ggplot(aes(expenditure, completion_rate, color = continent)) +
+    geom_point(alpha = 0.8, show.legend = TRUE) +
+    labs(title = "Completion Rate vs Log of Expenditure Per Person from 2006 to 2016 
+                  (Primary School Level)",
+         subtitle = 'Year: {frame_time}
+         Completion Rate (% of Primary Age Group)', 
+         x = "Log of Expenditure (% of GDP Per Person)", 
+         y = "",
+         color = "Continent") +
+    transition_time(year) +
+    ease_aes('linear') +
+  theme(plot.subtitle = element_text(size=10, vjust = -2),
+        axis.title.x = element_text(size=10),
+        plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
 ```
 
 ## References
- + Explanatory & Response Variables: [https://www.gapminder.org/data/](https://www.gapminder.org/data/)
- + Data Collection Method: [https://data.worldbank.org/about](https://data.worldbank.org/about)
- + Pre-Analysis Research: [https://nces.ed.gov/fastfacts/display.asp?id=66](https://nces.ed.gov/fastfacts/display.asp?id=66)
+
+-   Explanatory & Response Variables: <https://www.gapminder.org/data/>
+-   Data Collection Method: <https://data.worldbank.org/about>
+-   Pre-Analysis Research: <https://nces.ed.gov/fastfacts/display.asp?id=66>
