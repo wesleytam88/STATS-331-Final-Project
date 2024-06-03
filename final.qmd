@@ -18,6 +18,8 @@ execute:
 
 ```{r setup}
 library(tidyverse)
+library(knitr)
+library(broom)
 expenditure <- read_csv("data/expenditure_per_student_primary_percent_of_gdp_per_person.csv")
 completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_age_group.csv")
 ```
@@ -58,7 +60,7 @@ Hypothesized relationship between the variables (and any outside references). Di
 
 ## Relationship Between Variables
 
-Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (https://nces.ed.gov/fastfacts/display.asp?id=66)
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
 
 ### Hypothesized Relationship Between Variables
 
@@ -108,7 +110,7 @@ head(avg_joined)
 
 ## Data Visualizations
 
-### **Relationship between the variables**
+### Relationship between the variables
 
 ```{r}
 #log transforming avg_expenditure (explanatory variable)
@@ -133,7 +135,7 @@ avg_joined |>
 
 ```
 
-### **Relationship between the variables over time (2006 to 2016)**
+### Relationship between the variables over time (2006 to 2016)
 
 ```{r}
 #loading necessary libraries
@@ -167,6 +169,35 @@ joined_conts |>
         axis.title.x = element_text(size=10),
         plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
 ```
+
+## Model Fit
+
+Using our linear regression model, we can obtain a regression equation to predict primary school completion rates given a government's expenditure.
+
+```{r}
+regression <- tidy(model)
+kable(regression, caption = "Government Expenditure Regression Model")
+```
+
+From our regression model, we get the following equation: $${\hat{y}} = 8.98x + 66.74$$ to predict primary school completion rates using government expenditure. We see that if the government spends 0% of their GDP per capita on a primary student's education, we expect primary school completion rates to fall to 66.74%. With each additional percentage point increase of government spending, completion rate will be expected to rise by about 9%.
+
+Another way to analyze our regression model is to measure its variance. In the context of our regression model, variance measures how much the predicted primary school completion rates vary around the mean of these predicted values. A low variance indicates that the predicted values tend to be close to their mean, implying our model is consistently predicting completion rates. On the other hand, a high variance indicates that the predicted values are spread out over a wider range, suggesting our model’s predictions are more inaccurate.
+
+```{r}
+aug <- broom::augment(model)
+
+variances <- data.frame(
+  Variable = c("Response Values", 
+               "Fitted Values", 
+               "Residuals"),
+  Variance = c(var(aug$avg_completion), 
+               var(aug$.fitted), 
+               var(aug$.resid))
+)
+kable(variances, caption = "Regression Model Variances")
+```
+
+With this variance table, we can see that our response values are spread out over a very wide range compared to our fitted values. This means our model is struggling to accurately predict a relationship between our two variables. To correct this, we may have to make our model more complex, possibly by adding in more explanatory variables or collecting more data.
 
 ## References
 
