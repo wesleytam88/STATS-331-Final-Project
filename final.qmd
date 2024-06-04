@@ -8,6 +8,7 @@ format:
     code-fold: true
     toc: true
     number-sections: true
+    self-contained-math: true
 editor: source
 execute: 
   error: true
@@ -131,9 +132,7 @@ avg_joined |>
 library(countrycode)
 library(gganimate)
 library(gifski)
-```
 
-```{r}
 #adding continents variable
 joined_conts <- joined |>
   mutate(continent = countrycode(sourcevar = country, origin = "country.name", destination = "continent"))
@@ -161,16 +160,18 @@ joined_conts |>
 ```
 
 ## Linear Regression
+
+Linear regression is a statistical method used to model the relationship between a dependent variable (often denoted as Y) and one or more independent variables (often denoted as X1,X2,…Xp). The core idea behind linear regression is to fit a linear equation to observed data that best explains the relationship between the dependent variable and the independent variables.
+
+Linear regression assumes that there is a linear relationship between the dependent and independent variables, the errors (residuals) are normally distributed, the variance of the errors is constant (homoscedasticity) and the errors are independent of each other.
+
 ```{r}
 model <- lm(avg_completion ~ avg_expenditure, data=avg_joined)
 regression <- tidy(model)
 kable(regression, caption = "Government Expenditure Regression Model")
 ```
-Linear regression is a statistical method used to model the relationship between a dependent variable (often denoted as Y) and one or more independent variables (often denoted as X1,X2,…Xp). The core idea behind linear regression is to fit a linear equation to observed data that best explains the relationship between the dependent variable and the independent variables.
 
-Linear regression assumes that there is a linear relationship between the dependent and independent variables, the errors (residuals) are normally distributed, the variance of the errors is constant (homoscedasticity) and the errors are independent of each other.
-
-The estimated regression model is as follows: $$ \hat{avg\_completion} = 83.74 + 0.466(avg\_expenditure) $$
+The estimated regression model is as follows: $${\hat{avg\_completion}} = 83.74 + 0.466(avg\_expenditure)$$
 
 The intercept represents the estimated value of avg_completion when avg_expenditure is zero.
 The estimate of 83.7383 suggests that if no money is spent (avg_expenditure = 0), the average completion rate is predicted to be 83.7383 percent.
@@ -178,14 +179,9 @@ The estimate of 83.7383 suggests that if no money is spent (avg_expenditure = 0)
 The coefficient for avg_expenditure represents the change in the average completion rate for a one-unit increase in average expenditure.
 The estimate of 0.4661 suggests that for each additional percentage point of average expenditure, the average completion rate increases by 0.4661 percentage points.
 
-
 ## Model Fit
 
-Using our linear regression model, we can obtain a regression equation to predict primary school completion rates given a government's expenditure.
-
-From our regression model, we get the following equation: $${\hat{y}} = 8.98x + 66.74$$ to predict primary school completion rates using government expenditure. We see that if the government spends 0% of their GDP per capita on a primary student's education, we expect primary school completion rates to fall to 66.74%. With each additional percentage point increase of government spending, completion rate will be expected to rise by about 9%.
-
-Another way to analyze our regression model is to measure its variance. In the context of our regression model, variance measures how much the predicted primary school completion rates vary around the mean of these predicted values. A low variance indicates that the predicted values tend to be close to their mean, implying our model is consistently predicting completion rates. On the other hand, a high variance indicates that the predicted values are spread out over a wider range, suggesting our model’s predictions are more inaccurate.
+Another way to analyze our regression model is to measure its variance. In the context of our regression model, variance measures how much the predicted primary school completion rates vary around the mean of these predicted values. A low variance indicates that the predicted values tend to be close to their mean, implying our model is consistently predicting accurate completion rates. On the other hand, a high variance indicates that the predicted values are spread out over a wider range, suggesting our model’s predictions are less accurate.
 
 ```{r}
 aug <- broom::augment(model)
@@ -196,12 +192,12 @@ variances <- data.frame(
                "Residuals"),
   Variance = c(var(aug$avg_completion), 
                var(aug$.fitted), 
-               var(aug$.resid))
-)
+               var(aug$.resid)))
+
 kable(variances, caption = "Regression Model Variances")
 ```
 
-With this variance table, we can see that our response values are spread out over a very wide range compared to our fitted values. This means our model is struggling to accurately predict a relationship between our two variables. To correct this, we may have to make our model more complex, possibly by adding in more explanatory variables or collecting more data.
+With this variance table, we can calculate our R-squared value with the formula $$R^2 = \frac{{\text{Fitted Values Variance}}}{{\text{Response Values Variance}}}$$. Using this formula gives us an R-squared value of 0.02998. This means that 2.998% of the variance seen in primary school completion rate can be explained by government expenditure. This means that our linear model is not well-fit to predict primary school completion given government expenditure. This may be because, as seen in the first graph, there does not appear to be a linear correlation between our two variables. As such, a linear regression model would not be able to effectively predict one given the other.
 
 ## References
 
