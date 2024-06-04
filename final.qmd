@@ -141,6 +141,7 @@ avg_joined |>
 #loading necessary libraries
 library(countrycode)
 library(gganimate)
+library(gifski)
 ```
 
 ```{r}
