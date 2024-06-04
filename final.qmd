@@ -9,8 +9,6 @@ format:
     toc: true
     number-sections: true
 editor: source
-  markdown: 
-    wrap: sentence
 execute: 
   error: true
   echo: true
@@ -20,19 +18,21 @@ execute:
 
 ```{r setup}
 library(tidyverse)
+library(knitr)
+library(broom)
 expenditure <- read_csv("data/expenditure_per_student_primary_percent_of_gdp_per_person.csv")
 completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_age_group.csv")
 ```
 
 ## Introduction
 
-### Detailed data and variable description.
+### Detailed Data and Variable Description.
 
-For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education and primary school completion rates across various countries.
+For our project, we are using two distinct datasets to analyze the relationship between government expenditure on primary education (explantory variable) and primary school completion rates (response variable) across various countries. Our explanatory and response variables were both taken from [Gapminder](https://www.gapminder.org/data/), which got its data from [The World Bank](https://data.worldbank.org/), which collects its data from the statistical systems of its member countries (<https://data.worldbank.org/about>).
 
 **Dataset 1: Expenditure per Student, Primary (% of GDP per Person)**
 
-This dataset contains annual data on the percentage of GDP per capita that is spent on each primary school student.
+This dataset contains annual data on the percentage of GDP per capita that is spent on each primary school student. GDP per capita is the sum of all goods and services produced in a country (GDP) divided by the country's population (per capita).
 
 The variables included are:
 
@@ -40,15 +40,11 @@ The variables included are:
 
 2.  *1995-2018*: 23 variables, 1995-2018, each representing the year of measured expenditure
 
-```{r include=FALSE}
-head(expenditure)
-```
-
-The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.4% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
+The data spans a couple decades, allowing us to observe trends and changes in educational expenditure over time. Each cell represents the expenditure per student for that year and country. For instance, in 2000, Argentina allocated 12.3% of its GDP per capita to primary education per student, while by 2013, this figure had varied.
 
 **Dataset 2: Primary Completion Rate, Total (% of Relevant Age Group)**
 
-This dataset provides annual data on the primary school completion rate, indicating the percentage of the relevant age group that successfully completes primary education. 
+This dataset provides annual data on the primary school completion rate, indicating the percentage of primary schoolers that successfully complete primary education.
 
 The variables included are:
 
@@ -56,21 +52,27 @@ The variables included are:
 
 2.  *1970-2022*: The year for which the data is recorded.
 
-```{r}
-head(completion)
-```
-
-The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 20.7%, which changed significantly over the following decades.
+The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 27.7%, which changed significantly over the following decades.
 
 By combining these datasets, we aim to explore the correlation between the financial investment in education and the corresponding completion rates across different countries for the time period of 2006-2016. This analysis will help us understand the impact of educational funding on student outcomes and provide useful insights on this relationship.
 
+Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
-Hypothesized relationship between the variables (and any outside references). 
-Discussion of data cleaning process and decisions.
+## Relationship Between Variables
+
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
+
+### Hypothesized Relationship Between Variables
+
+Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
 
 ## Data Cleaning
 
-We decided to limit our analysis to 2006-2016 as that time range seemed to be where the majority of the data lies without too many missing values. For acceptable measurements per year, we made sure that both the expenditure and the completion rate were recorded for that year. Any years that were missing one or the other were deemed as not acceptable for this analysis. Furthermore, countries with less than 8 acceptable measurements within the given time range were excluded from the final dataset.
+We chose to limit our analysis to the period from 2006 to 2016, as this range contained the majority of the data with minimal missing values. For each year to be considered acceptable, both expenditure and completion rate needed to be recorded. Any year missing either of these metrics was excluded. Additionally, countries with fewer than 8 acceptable measurements within this timeframe were omitted to ensure that our analysis had a sufficient amount of data for each country.
+
+Our data cleaning process involved transforming the datasets for expenditure per person and primary school completion rates into a long format for the selected years. We then merged these datasets by country and year. And then filtered the data as mentioned earlier.
+
+We also summarized the dataset by calculating the average expenditure and completion rate for each country over the specified period.
 
 ```{r}
 # Pivot the data
@@ -100,7 +102,105 @@ joined <- joined |>
          is_acceptable == TRUE)
 
 # Summarize the Data
-joined <- joined |>
+avg_joined <- joined |>
   summarize(avg_expenditure = mean(expenditure),
             avg_completion = mean(completion_rate))
+head(avg_joined)
 ```
+
+## Data Visualizations
+
+### Relationship between the variables
+
+```{r}
+#log transforming avg_expenditure (explanatory variable)
+avg_joined <- avg_joined |>
+   mutate(log_expenditure = log(avg_expenditure))
+```
+
+```{r}
+model <- lm(avg_completion ~ log_expenditure, data=avg_joined)
+summary(model)
+```
+
+```{r}
+avg_joined |>
+  ggplot(aes(x=log_expenditure, y=avg_completion)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "hotpink", size = 1.5) +
+  labs(title = "Completion Rate vs Log of Expenditure Per Person (Primary School Level)",
+       x = "Log of Expenditure (% of GDP Per Person)",
+       y = "",
+       subtitle = "Completion Rate (% of Primary Age Group)") 
+
+```
+
+### Relationship between the variables over time (2006 to 2016)
+
+```{r}
+#loading necessary libraries
+library(countrycode)
+library(gganimate)
+```
+
+```{r}
+#adding continents variable
+joined_conts <- joined |>
+  mutate(continent = countrycode(sourcevar = country, origin = "country.name", destination = "continent"))
+```
+
+```{r}
+#dont run this chunk (animated graph) in rstudio - 100 graphs get downloaded
+#only run this through rendered html
+joined_conts |>
+  mutate(year = as.integer(year)) |>
+  ggplot(aes(expenditure, completion_rate, color = continent)) +
+    geom_point(alpha = 0.8, show.legend = TRUE) +
+    labs(title = "Completion Rate vs Log of Expenditure Per Person from 2006 to 2016 
+                  (Primary School Level)",
+         subtitle = 'Year: {frame_time}
+         Completion Rate (% of Primary Age Group)', 
+         x = "Log of Expenditure (% of GDP Per Person)", 
+         y = "",
+         color = "Continent") +
+    transition_time(year) +
+    ease_aes('linear') +
+  theme(plot.subtitle = element_text(size=10, vjust = -2),
+        axis.title.x = element_text(size=10),
+        plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
+```
+
+## Model Fit
+
+Using our linear regression model, we can obtain a regression equation to predict primary school completion rates given a government's expenditure.
+
+```{r}
+regression <- tidy(model)
+kable(regression, caption = "Government Expenditure Regression Model")
+```
+
+From our regression model, we get the following equation: $${\hat{y}} = 8.98x + 66.74$$ to predict primary school completion rates using government expenditure. We see that if the government spends 0% of their GDP per capita on a primary student's education, we expect primary school completion rates to fall to 66.74%. With each additional percentage point increase of government spending, completion rate will be expected to rise by about 9%.
+
+Another way to analyze our regression model is to measure its variance. In the context of our regression model, variance measures how much the predicted primary school completion rates vary around the mean of these predicted values. A low variance indicates that the predicted values tend to be close to their mean, implying our model is consistently predicting completion rates. On the other hand, a high variance indicates that the predicted values are spread out over a wider range, suggesting our model’s predictions are more inaccurate.
+
+```{r}
+aug <- broom::augment(model)
+
+variances <- data.frame(
+  Variable = c("Response Values", 
+               "Fitted Values", 
+               "Residuals"),
+  Variance = c(var(aug$avg_completion), 
+               var(aug$.fitted), 
+               var(aug$.resid))
+)
+kable(variances, caption = "Regression Model Variances")
+```
+
+With this variance table, we can see that our response values are spread out over a very wide range compared to our fitted values. This means our model is struggling to accurately predict a relationship between our two variables. To correct this, we may have to make our model more complex, possibly by adding in more explanatory variables or collecting more data.
+
+## References
+
+-   Explanatory & Response Variables: <https://www.gapminder.org/data/>
+-   Data Collection Method: <https://data.worldbank.org/about>
+-   Pre-Analysis Research: <https://nces.ed.gov/fastfacts/display.asp?id=66>
