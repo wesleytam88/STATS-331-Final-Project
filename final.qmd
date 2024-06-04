@@ -113,11 +113,6 @@ head(avg_joined)
 ### Relationship between the variables
 
 ```{r}
-model <- lm(avg_completion ~ avg_expenditure, data=avg_joined)
-summary(model)
-```
-
-```{r}
 avg_joined |>
   ggplot(aes(x=avg_expenditure, y=avg_completion)) +
   geom_point(color = "steelblue") +
@@ -165,14 +160,28 @@ joined_conts |>
         plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
 ```
 
-## Model Fit
-
-Using our linear regression model, we can obtain a regression equation to predict primary school completion rates given a government's expenditure.
-
+## Linear Regression
 ```{r}
+model <- lm(avg_completion ~ avg_expenditure, data=avg_joined)
 regression <- tidy(model)
 kable(regression, caption = "Government Expenditure Regression Model")
 ```
+Linear regression is a statistical method used to model the relationship between a dependent variable (often denoted as Y) and one or more independent variables (often denoted as X1,X2,…Xp). The core idea behind linear regression is to fit a linear equation to observed data that best explains the relationship between the dependent variable and the independent variables.
+
+Linear regression assumes that there is a linear relationship between the dependent and independent variables, the errors (residuals) are normally distributed, the variance of the errors is constant (homoscedasticity) and the errors are independent of each other.
+
+The estimated regression model is as follows: $$ \hat{avg\_completion} = 83.74 + 0.466(avg\_expenditure) $$
+
+The intercept represents the estimated value of avg_completion when avg_expenditure is zero.
+The estimate of 83.7383 suggests that if no money is spent (avg_expenditure = 0), the average completion rate is predicted to be 83.7383 percent.
+
+The coefficient for avg_expenditure represents the change in the average completion rate for a one-unit increase in average expenditure.
+The estimate of 0.4661 suggests that for each additional percentage point of average expenditure, the average completion rate increases by 0.4661 percentage points.
+
+
+## Model Fit
+
+Using our linear regression model, we can obtain a regression equation to predict primary school completion rates given a government's expenditure.
 
 From our regression model, we get the following equation: $${\hat{y}} = 8.98x + 66.74$$ to predict primary school completion rates using government expenditure. We see that if the government spends 0% of their GDP per capita on a primary student's education, we expect primary school completion rates to fall to 66.74%. With each additional percentage point increase of government spending, completion rate will be expected to rise by about 9%.
 
