@@ -113,23 +113,17 @@ head(avg_joined)
 ### Relationship between the variables
 
 ```{r}
-#log transforming avg_expenditure (explanatory variable)
-avg_joined <- avg_joined |>
-   mutate(log_expenditure = log(avg_expenditure))
-```
-
-```{r}
-model <- lm(avg_completion ~ log_expenditure, data=avg_joined)
+model <- lm(avg_completion ~ avg_expenditure, data=avg_joined)
 summary(model)
 ```
 
 ```{r}
 avg_joined |>
-  ggplot(aes(x=log_expenditure, y=avg_completion)) +
+  ggplot(aes(x=avg_expenditure, y=avg_completion)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "hotpink", size = 1.5) +
-  labs(title = "Completion Rate vs Log of Expenditure Per Person (Primary School Level)",
-       x = "Log of Expenditure (% of GDP Per Person)",
+  labs(title = "Completion Rate vs Expenditure Per Person (Primary School Level)",
+       x = "Expenditure (% of GDP Per Person)",
        y = "",
        subtitle = "Completion Rate (% of Primary Age Group)") 
 
@@ -157,11 +151,11 @@ joined_conts |>
   mutate(year = as.integer(year)) |>
   ggplot(aes(expenditure, completion_rate, color = continent)) +
     geom_point(alpha = 0.8, show.legend = TRUE) +
-    labs(title = "Completion Rate vs Log of Expenditure Per Person from 2006 to 2016 
+    labs(title = "Completion Rate vs Expenditure Per Person from 2006 to 2016 
                   (Primary School Level)",
          subtitle = 'Year: {frame_time}
          Completion Rate (% of Primary Age Group)', 
-         x = "Log of Expenditure (% of GDP Per Person)", 
+         x = "Expenditure (% of GDP Per Person)", 
          y = "",
          color = "Continent") +
     transition_time(year) +
