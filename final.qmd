@@ -199,6 +199,87 @@ kable(variances, caption = "Regression Model Variances")
 
 With this variance table, we can calculate our R-squared value with the formula $$R^2 = \frac{{\text{Fitted Values Variance}}}{{\text{Response Values Variance}}}$$. Using this formula gives us an R-squared value of 0.02998. This means that 2.998% of the variance seen in primary school completion rate can be explained by government expenditure. This means that our linear model is not well-fit to predict primary school completion given government expenditure. This may be because, as seen in the first graph, there does not appear to be a linear correlation between our two variables. As such, a linear regression model would not be able to effectively predict one given the other.
 
+## Simulation
+
+### Visualizing Simulations from the Model
+
+With our simple linear regression, we can generate predictions using the `predict()` function. Then, we can add random errors to the predictions, using the residual standard error estimated from the linear regression model (acquired with `sigma()`).
+
+```{r}
+pred_avg_completion <- predict(model, data = avg_joined)
+
+est_sigma <- sigma(model)
+
+rand_error <- function(x, mean = 0, sd){
+ sim <-  x + rnorm(length(x), mean, sd)
+ return(sim)
+}
+
+set.seed(1234)
+sim_response <- tibble(sim_avg_completion = rand_error(pred_avg_completion,
+                                            sd = est_sigma))
+```
+
+Below is a scatter plot of the *observed average completion* versus the *simulated average completion*.
+
+```{r}
+full_data <- avg_joined |> 
+  select(avg_expenditure, avg_completion) |> 
+  bind_cols(sim_response)
+
+viz3 <- full_data |> 
+  ggplot(aes(x = sim_avg_completion,
+             y = avg_completion)) +
+  geom_point() +
+  geom_abline(slope = 1,
+              intercept = 0, 
+              color = "orange3",
+              linetype = "dashed") +
+  theme(aspect.ratio = 1) +
+  labs(x = "Simulated Average Completion",
+       y = "",
+       subtitle = "Observed Average Completion",
+       caption = "Viz 3")
+
+viz3
+```
+
+Here is a table of some summary statistics of a linear regression run on *observed average completion* versus *simulated average completion*:
+
+```{r}
+fit <- lm(avg_completion ~ sim_avg_completion, data = full_data) |> 
+  broom::glance()
+
+fit <- fit |> 
+  select("r.squared", "adj.r.squared", "sigma", "statistic", "p.value")
+
+kable(fit, 
+      col.names = c("R-squared", 
+                    "Adjusted R-squared", 
+                    "Sigma", 
+                    "F-statistic", 
+                    "p-value"), 
+      caption = "Summary Statistics of Linear Regression Model",
+      format = "markdown")
+```
+
+#### Regression Summary Statistics
+
+-   ***R-squared (0.0169):***
+
+    -   This low R-squared value indicates that the linear model does not explain much of the variance in the observed data. It suggests that the simulated values do not align well with the observed values.
+
+-   ***Adjusted R-squared (-0.0031):***
+
+    -   The negative adjusted R-squared value further confirms that the model does not fit the data well. It indicates that the model's explanatory power is very low.
+
+-   ***Residual Standard Error (16.23978):***
+
+    -   A high residual standard error implies significant deviation of the observed data points from the regression line. This further indicates that the model does not capture the relationship between observed and simulated data well.
+
+
+The analysis of these values indicates that while the simulated data captures the general trend and variability of the observed data, there are significant differences in terms of scatter distribution, presence of outliers, and central tendency.
+
 ## References
 
 -   Explanatory & Response Variables: <https://www.gapminder.org/data/>
