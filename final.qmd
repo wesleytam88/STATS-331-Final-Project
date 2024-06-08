@@ -59,7 +59,7 @@ By combining these datasets, we aim to explore the correlation between the finan
 
 Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
-## Relationship Between Variables
+### Relationship Between Variables
 
 Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
 
@@ -67,7 +67,7 @@ Presented as a percentage of the GDP per capita, government expenditure per stud
 
 Presented as a percentage of the GDP per capita, government expenditure per student is defined as the average government expenditure, spread across three domains (current expenditure, capital, and transfers), per student in the given level of education. It is hypothesized that primary school completion rates across various countries increase as the government expenditure per primary student increases. This hypothesis is based on the reasoning that greater expenditures can lead to better-trained and better-paid teachers, which directly impacts student performance and completion rates. Additionally, investments in school infrastructure create a conducive learning environment, reducing dropout rates and encouraging completion. Further, additional funding can provide students with textbooks, technology, and other learning resources that support their education and reduce barriers to completion. For instance, the National Center for Education Statistics reports that in the United States, between 2019 and 2020, 11% of current expenditures on education were allocated to food contracts, janitorial services, transportation, and professional development for teachers. These expenditures are crucial for maintaining a supportive and effective learning environment. Providing nutritious meals, ensuring clean and safe facilities, and offering reliable transportation all contribute to student well-being and readiness to learn. Professional development for teachers ensures they are well-equipped with the latest teaching strategies and knowledge, directly impacting student performance and completion rates. This example illustrates how targeted educational expenditures can foster an environment conducive to higher primary school completion rates. (<https://nces.ed.gov/fastfacts/display.asp?id=66>)
 
-## Data Cleaning
+### Data Cleaning
 
 We chose to limit our analysis to the period from 2006 to 2016, as this range contained the majority of the data with minimal missing values. For each year to be considered acceptable, both expenditure and completion rate needed to be recorded. Any year missing either of these metrics was excluded. Additionally, countries with fewer than 8 acceptable measurements within this timeframe were omitted to ensure that our analysis had a sufficient amount of data for each country.
 
@@ -109,23 +109,26 @@ avg_joined <- joined |>
 head(avg_joined)
 ```
 
-## Data Visualizations
+## Linear Regression
 
-### Relationship between the variables
+### Data Visualizations
+
+#### Relationship between the variables
 
 ```{r}
-avg_joined |>
+viz1 <- avg_joined |>
   ggplot(aes(x=avg_expenditure, y=avg_completion)) +
   geom_point(color = "steelblue") +
   geom_smooth(method = "lm", color = "hotpink", size = 1.5) +
   labs(title = "Completion Rate vs Expenditure Per Person (Primary School Level)",
        x = "Expenditure (% of GDP Per Person)",
        y = "",
-       subtitle = "Completion Rate (% of Primary Age Group)") 
-
+       subtitle = "Completion Rate (% of Primary Age Group)",
+       caption = "Viz 1") 
+viz1
 ```
 
-### Relationship between the variables over time (2006 to 2016)
+#### Relationship between the variables over time (2006 to 2016)
 
 ```{r}
 #loading necessary libraries
@@ -141,7 +144,7 @@ joined_conts <- joined |>
 ```{r}
 #dont run this chunk (animated graph) in rstudio - 100 graphs get downloaded
 #only run this through rendered html
-joined_conts |>
+viz2 <- joined_conts |>
   mutate(year = as.integer(year)) |>
   ggplot(aes(expenditure, completion_rate, color = continent)) +
     geom_point(alpha = 0.8, show.legend = TRUE) +
@@ -151,15 +154,17 @@ joined_conts |>
          Completion Rate (% of Primary Age Group)', 
          x = "Expenditure (% of GDP Per Person)", 
          y = "",
-         color = "Continent") +
+         color = "Continent",
+         caption = "Viz 2") +
     transition_time(year) +
     ease_aes('linear') +
   theme(plot.subtitle = element_text(size=10, vjust = -2),
         axis.title.x = element_text(size=10),
         plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
+viz2
 ```
 
-## Linear Regression
+### Linear Regression
 
 Linear regression is a statistical method used to model the relationship between a dependent variable (often denoted as Y) and one or more independent variables (often denoted as X1,X2,…Xp). The core idea behind linear regression is to fit a linear equation to observed data that best explains the relationship between the dependent variable and the independent variables.
 
@@ -173,13 +178,11 @@ kable(regression, caption = "Government Expenditure Regression Model")
 
 The estimated regression model is as follows: $${\hat{avg\_completion}} = 83.74 + 0.466(avg\_expenditure)$$
 
-The intercept represents the estimated value of avg_completion when avg_expenditure is zero.
-The estimate of 83.7383 suggests that if no money is spent (avg_expenditure = 0), the average completion rate is predicted to be 83.7383 percent.
+The intercept represents the estimated value of avg_completion when avg_expenditure is zero. The estimate of 83.7383 suggests that if no money is spent (avg_expenditure = 0), the average completion rate is predicted to be 83.7383 percent.
 
-The coefficient for avg_expenditure represents the change in the average completion rate for a one-unit increase in average expenditure.
-The estimate of 0.4661 suggests that for each additional percentage point of average expenditure, the average completion rate increases by 0.4661 percentage points.
+The coefficient for avg_expenditure represents the change in the average completion rate for a one-unit increase in average expenditure. The estimate of 0.4661 suggests that for each additional percentage point of average expenditure, the average completion rate increases by 0.4661 percentage points.
 
-## Model Fit
+### Model Fit
 
 Another way to analyze our regression model is to measure its variance. In the context of our regression model, variance measures how much the predicted primary school completion rates vary around the mean of these predicted values. A low variance indicates that the predicted values tend to be close to their mean, implying our model is consistently predicting accurate completion rates. On the other hand, a high variance indicates that the predicted values are spread out over a wider range, suggesting our model’s predictions are less accurate.
 
