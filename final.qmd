@@ -283,6 +283,61 @@ kable(fit,
 
 The analysis of these values indicates that while the simulated data captures the general trend and variability of the observed data, there are significant differences in terms of scatter distribution, presence of outliers, and central tendency.
 
+### Generating Multiple Predictive Checks
+```{r}
+
+# Generate 1000 simulated datasets
+set.seed(123)  # For reproducibility
+n_simulations <- 1000
+
+
+# Function to add random error
+rand_error <- function(x, mean = 0, sd) {
+  error <- rnorm(length(x), mean = mean, sd = sd)
+  x_with_error <- x + error
+  return(x_with_error)
+}
+
+# Extract the observed response variable
+#observed_response <- avg_joined$avg_completion
+
+
+
+perform_predictive_check <- function(data) {
+  # Fit a regression model to the observed data
+  model <- lm(avg_completion ~ avg_expenditure, data = data)
+  
+  # Obtain predicted response values from the model
+  predicted_values <- predict(model, newdata = data)
+  
+  # Add random errors to the predictions
+  simulated_response <- tibble(sim_completion =rand_error(predicted_values, mean = 0, sd = summary(model)$sigma))
+  
+  full_data <- avg_joined |> 
+  select(avg_completion) |> 
+  bind_cols(simulated_response)
+  # Perform regression of observed against simulated data
+  sim_model <- lm(avg_completion ~ sim_completion, data = full_data)
+  
+  # Calculate R-squared
+  r_squared <- summary(sim_model)$r.squared
+  
+  return(r_squared)
+}
+
+r_squared_values <- map_dbl(1:n_simulations, ~ perform_predictive_check(avg_joined))
+#print(r_squared_values)
+
+
+```
+```{r}
+ggplot(data.frame(R2 = r_squared_values), aes(x = R2)) +
+  geom_histogram(binwidth = 0.01, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of R-squared Values",
+       x = "R-squared",
+       y = "Frequency")
+```
+
 ## References
 
 -   Explanatory & Response Variables: <https://www.gapminder.org/data/>
