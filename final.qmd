@@ -21,6 +21,9 @@ execute:
 library(tidyverse)
 library(knitr)
 library(broom)
+library(countrycode)
+library(gganimate)
+library(gifski)
 expenditure <- read_csv("data/expenditure_per_student_primary_percent_of_gdp_per_person.csv")
 completion <- read_csv("data/primary_completion_rate_total_percent_of_relevant_age_group.csv")
 ```
@@ -56,8 +59,6 @@ The variables included are:
 The data covers a wide range of years, each cell represents completion percentage for students in primary school. For example, in 1980, Afghanistan had a completion rate of 27.7%, which changed significantly over the following decades.
 
 By combining these datasets, we aim to explore the correlation between the financial investment in education and the corresponding completion rates across different countries for the time period of 2006-2016. This analysis will help us understand the impact of educational funding on student outcomes and provide useful insights on this relationship.
-
-Hypothesized relationship between the variables (and any outside references). Discussion of data cleaning process and decisions.
 
 ### Relationship Between Variables
 
@@ -106,7 +107,12 @@ joined <- joined |>
 avg_joined <- joined |>
   summarize(avg_expenditure = mean(expenditure),
             avg_completion = mean(completion_rate))
-head(avg_joined)
+
+head(avg_joined) |>
+  rename("County" = "country",
+         "Average Expenditure" = "avg_expenditure",
+         "Average Completion" = "avg_completion") |>
+  kable("html")
 ```
 
 ## Linear Regression
@@ -133,19 +139,13 @@ From the scatter plot we see that the data points do not align well with a strai
 #### Relationship between the variables over time (2006 to 2016)
 
 ```{r}
-#loading necessary libraries
-library(countrycode)
-library(gganimate)
-library(gifski)
+#dont run this chunk (animated graph) in rstudio - 100 graphs get downloaded
+#only run this through rendered html
 
 #adding continents variable
 joined_conts <- joined |>
   mutate(continent = countrycode(sourcevar = country, origin = "country.name", destination = "continent"))
-```
 
-```{r}
-#dont run this chunk (animated graph) in rstudio - 100 graphs get downloaded
-#only run this through rendered html
 viz2 <- joined_conts |>
   mutate(year = as.integer(year)) |>
   ggplot(aes(expenditure, completion_rate, color = continent)) +
@@ -163,6 +163,7 @@ viz2 <- joined_conts |>
   theme(plot.subtitle = element_text(size=10, vjust = -2),
         axis.title.x = element_text(size=10),
         plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
+
 viz2
 ```
 
@@ -204,7 +205,11 @@ variances <- data.frame(
 kable(variances, caption = "Regression Model Variances")
 ```
 
-With this variance table, we can calculate our R-squared value with the formula $$R^2 = \frac{{\text{Fitted Values Variance}}}{{\text{Response Values Variance}}}$$. Using this formula gives us an R-squared value of 0.02998. This means that 2.998% of the variance seen in primary school completion rate can be explained by government expenditure. This means that our linear model is not well-fit to predict primary school completion given government expenditure. This may be because, as seen in the first graph, there does not appear to be a linear correlation between our two variables. As such, a linear regression model would not be able to effectively predict one given the other.
+With this variance table, we can calculate our R-squared value with the formula.
+
+$$R^2 = \frac{{\text{Fitted Values Variance}}}{{\text{Response Values Variance}}}$$ 
+
+Using this formula gives us an R-squared value of 0.02998. This means that 2.998% of the variance seen in primary school completion rate can be explained by government expenditure. This means that our linear model is not well-fit to predict primary school completion given government expenditure. This may be because, as seen in the first graph, there does not appear to be a linear correlation between our two variables. As such, a linear regression model would not be able to effectively predict one given the other.
 
 ## Simulation
 
@@ -227,37 +232,34 @@ sim_response <- tibble(sim_avg_completion = rand_error(pred_avg_completion,
                                             sd = est_sigma))
 ```
 
-Below is a scatter plot of the *observed average completion* versus the *simulated average completion*.
+Below are scatter plots of the *observed average completion vs expenditure* and the *simulated average completion vs expenditure*.
 
 ```{r}
+#| layout-ncol: 2
+
 full_data <- avg_joined |> 
   select(avg_expenditure, avg_completion) |> 
   bind_cols(sim_response)
 
-viz3 <- full_data |> 
-  ggplot(aes(x = sim_avg_completion,
-             y = avg_completion)) +
-  geom_point() +
-  geom_abline(slope = 1,
-              intercept = 0, 
-              color = "orange3",
-              linetype = "dashed") +
-  theme(aspect.ratio = 1) +
-  labs(x = "Simulated Average Completion",
+viz3 <- full_data |>
+  ggplot(aes(x=avg_expenditure, y=sim_avg_completion)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "hotpink", size = 1.5) +
+  labs(title = "Simulated Completion Rate vs Expenditure Per Person (Primary School Level)",
+       x = "Expenditure (% of GDP Per Person)",
        y = "",
-       subtitle = "Observed Average Completion",
+       subtitle = "Simulated Completion Rate (% of Primary Age Group)",
        caption = "Viz 3")
 
+viz1
 viz3
 ```
 
 Here is a table of some summary statistics of a linear regression run on *observed average completion* versus *simulated average completion*:
 
 ```{r}
-fit <- lm(avg_completion ~ sim_avg_completion, data = full_data) |> 
-  broom::glance()
-
-fit <- fit |> 
+fit <- lm(sim_avg_completion ~ avg_expenditure, data = full_data) |> 
+  broom::glance() |> 
   select("r.squared", "adj.r.squared", "sigma", "statistic", "p.value")
 
 kable(fit, 
@@ -272,28 +274,17 @@ kable(fit,
 
 #### Regression Summary Statistics
 
--   ***R-squared (0.0169):***
+-   ***R-squared (0.0433):***
 
-    -   This low R-squared value indicates that the linear model does not explain much of the variance in the observed data. It suggests that the simulated values do not align well with the observed values.
+    -   This low R-squared value indicates that expenditure the linear model does not explain much of the variance in the simulated average completion rate. It suggests that the simulated values do not greatly improve the explained variation.
 
--   ***Adjusted R-squared (-0.0031):***
-
-    -   The negative adjusted R-squared value further confirms that the model does not fit the data well. It indicates that the model's explanatory power is very low.
-
--   ***Residual Standard Error (16.23978):***
-
-    -   A high residual standard error implies significant deviation of the observed data points from the regression line. This further indicates that the model does not capture the relationship between observed and simulated data well.
-
-
-The analysis of these values indicates that while the simulated data captures the general trend and variability of the observed data, there are significant differences in terms of scatter distribution, presence of outliers, and central tendency.
+The analysis of these values indicates that the simulated data slightly improves the explained variation and still captures the same general trend. The simulated data seems to have a more linear trend as opposed to the observed data which has an apparent curve. The regression line overall shifted downward and the data is more centered.
 
 ### Generating Multiple Predictive Checks
 ```{r}
 
 # Generate 1000 simulated datasets
-set.seed(123)  # For reproducibility
 n_simulations <- 1000
-
 
 # Function to add random error
 rand_error <- function(x, mean = 0, sd) {
@@ -301,11 +292,6 @@ rand_error <- function(x, mean = 0, sd) {
   x_with_error <- x + error
   return(x_with_error)
 }
-
-# Extract the observed response variable
-#observed_response <- avg_joined$avg_completion
-
-
 
 perform_predictive_check <- function(data) {
   # Fit a regression model to the observed data
@@ -330,15 +316,14 @@ perform_predictive_check <- function(data) {
 }
 
 r_squared_values <- map_dbl(1:n_simulations, ~ perform_predictive_check(avg_joined))
-#print(r_squared_values)
 
-```
-```{r}
 ggplot(data.frame(R2 = r_squared_values), aes(x = R2)) +
   geom_histogram(binwidth = 0.01, fill = "skyblue", color = "black") +
   labs(title = "Distribution of R-squared Values",
+       subtitle = "Frequency",
        x = "R-squared",
-       y = "Frequency")
+       y = "",
+       caption = "Viz 4")
 ```
 
 R-squared is the proportion of the total variation in the dependent variable (Y) that is explained by the independent variable(s) (X) in the regression model. R-squared is between 0 and 1. A large R-squared means the explanatory variable is good at explaining the response. For example, $R^2$ = 0.7 means that 70% of the variance in the dependent variable is explained by the independent variable(s).
