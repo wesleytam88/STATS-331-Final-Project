@@ -128,6 +128,8 @@ viz1 <- avg_joined |>
 viz1
 ```
 
+From the scatter plot we see that the data points do not align well with a straight line, suggesting that a linear model may not be appropriate. Instead, the data points appear to follow a curved pattern, indicating a potential non-linear relationship between the two variables. Additionally, we explored various transformations of the variables, including logarithmic and squared transformations. However, these transformations did not improve the fit and, in some cases, performed worse than the original linear model (analyzed through adjusted r-squared).
+
 #### Relationship between the variables over time (2006 to 2016)
 
 ```{r}
@@ -163,6 +165,8 @@ viz2 <- joined_conts |>
         plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"))
 viz2
 ```
+
+The points in the graph do not exhibit a discernible pattern. However, this observation aligns with the complexity of our dataset. Each point on the graph represents a country, and each country operates within its unique legal and local context regarding expenditure per person at the primary school level. These diverse circumstances also influence the completion rates of these students.
 
 ### Linear Regression
 
@@ -328,7 +332,6 @@ perform_predictive_check <- function(data) {
 r_squared_values <- map_dbl(1:n_simulations, ~ perform_predictive_check(avg_joined))
 #print(r_squared_values)
 
-
 ```
 ```{r}
 ggplot(data.frame(R2 = r_squared_values), aes(x = R2)) +
@@ -337,6 +340,16 @@ ggplot(data.frame(R2 = r_squared_values), aes(x = R2)) +
        x = "R-squared",
        y = "Frequency")
 ```
+
+R-squared is the proportion of the total variation in the dependent variable (Y) that is explained by the independent variable(s) (X) in the regression model. R-squared is between 0 and 1. A large R-squared means the explanatory variable is good at explaining the response. For example, $R^2$ = 0.7 means that 70% of the variance in the dependent variable is explained by the independent variable(s).
+
+Over 300 simulated datasets have an R-squared value of 0 which shows that they provide no explanatory power for the observed data. This suggests that the regression model, when applied to these simulated datasets, often fails to capture any meaningful relationship between the explanatory and response variables.
+  
+In addition, the highest R-squared value does not exceed 0.2 which means that even in the best cases, the model only explains up to 20% of the variance in the observed data. This is a relatively low proportion, indicating that the model has limited explanatory power. The majority of the variability in the response variable remains unexplained by the model.
+
+The right-skewed nature of the distribution, with a high frequency of very low $R^2$ values and a gradual decline in frequency as $R^2$ increases, suggests that it is much more common for the model to explain very little of the variance in the data. This further supports the notion that the model generally performs poorly in capturing the relationship between the variables.
+
+Using the above, we can conclude that our model does not generate data similar to what was observed.
 
 ## References
 
